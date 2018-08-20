@@ -1,0 +1,3 @@
+~   Added MIT License
+~   wrote rotate function and unbalanced_insert
+~   began implementing tests in test.cc and test.hh, made rb_test friend of all classes (using CATCH framework)

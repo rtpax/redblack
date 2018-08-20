@@ -1,0 +1,15 @@
+
+
+FEATURES:
+
+~   Create Makefile
+~   Write tests
+~   Benchmark against std::set
+~   Make version with key/value seperation like std::map (just overlay with std::pair and custom comparator)
+~   Write rb_tree::insert
+~   Write upper_bound and lower_bound
+
+BUGS:
+
+
+

@@ -1,7 +1,10 @@
+#include <utility>
 
-template<class T>
+class rb_test;
+
+template<class T, class Cmp>
 struct rb_node {
-    enum direction { left = 0, right = 1 };
+    friend rb_test;
     enum color { red = 0, black = 1 };
 
     color color_;
@@ -10,13 +13,15 @@ struct rb_node {
 
     bool is_root() { return parent_ == nullptr; }
     bool is_leaf() { return left_ == nullptr || right_ == nullptr; }
+    std::pair<rb_node*,bool> unbalanced_insert(T&& value);
 }
 
-template<class T, class Cmp = std::less<T>>
+template<class T, class Cmp, bool is_const, bool is_reverse>
 class rb_iterator {
+    friend rb_test;
 private:
     rb_tree* tree_;
-    rb_node* loc_
+    rb_node* loc_;
 public:
     T& operator*();
     const T& operator*();
@@ -29,45 +34,29 @@ public:
 
 template<class T, class Cmp = std::less<T>>
 class rb_tree {
+    friend rb_test;
 private:
     rb_node<T>* root_;
     size_t size_;
 
-    rotate(rb_node<T>*, rb_node::direction);
-    unbalanced_insert(T&& value);
-    insert(const T& value) { return insert(std::move(T(value))); }
-    insert(T&& value);
-    remove(const T& value);
+public:
+    enum direction { left = 0, right = 1 };
+    typedef rb_iterator<T,Cmp,false,false> iterator;
+    typedef rb_iterator<T,Cmp,true ,false> const_iterator;
+    typedef rb_iterator<T,Cmp,false,true > reverse_iterator;
+    typedef rb_iterator<T,Cmp,true ,true > const_reverse_iterator;
+
+    void rotate(rb_node<T>*, rb_node::direction);
+    void insert(const T& value) { return insert(std::move(T(value))); }
+    void insert(T&& value);
+    void remove(const T& value);
+
+    iterator begin();
+    iterator end();
+    const_iterator cbegin() const;
+    const_iterator cend() const;
+    reverse_iterator rbegin();
+    reverse_iterator rend();
+    const_reverse_iterator crbegin() const;
+    const_reverse_iterator crend() const;            
 }
-
-
-
-
-
-
-// left_rotate( Tree T, node x ) {
-//     node y;
-//     y = x->right;
-//     /* Turn y's left sub-tree into x's right sub-tree */
-//     x->right = y->left;
-//     if ( y->left != NULL )
-//         y->left->parent = x;
-//     /* y's new parent was x's parent */
-//     y->parent = x->parent;
-//     /* Set the parent to point to y instead of x */
-//     /* First see whether we're at the root */
-//     if ( x->parent == NULL ) T->root = y;
-//     else
-//         if ( x == (x->parent)->left )
-//             /* x was on the left of its parent */
-//             x->parent->left = y;
-//         else
-//             /* x must have been on the right */
-//             x->parent->right = y;
-//     /* Finally, put x on y's left */
-//     y->left = x;
-//     x->parent = y;
-//     }
-
-/*
-

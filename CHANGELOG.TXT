@@ -1,3 +1,5 @@
-~   Added MIT License
-~   wrote rotate function and unbalanced_insert
-~   began implementing tests in test.cc and test.hh, made rb_test friend of all classes (using CATCH framework)
+~   split into tree, node, iterator files
+~   split rotate into rotate_right, rotate_left
+~   created balancing function in tree
+~   finished insert
+

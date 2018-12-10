@@ -1,6 +1,5 @@
-.vscode/*
-sandbox/*
-*.exe
-*.o
-*.obj
-*.stackdump
+.vscode
+sandbox
+release
+debug
+profile

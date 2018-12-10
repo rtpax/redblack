@@ -13,14 +13,13 @@ class rb_iterator {
     friend rb_test<T,Cmp>;
 private:
     typedef rb_tree<T,Cmp> tree_type;
-    typedef rb_node<t,Cmp> node_type;
+    typedef rb_node<T,Cmp> node_type;
     tree_type* tree_;
     node_type* loc_;
 public:
-    rb_iterator(rb_tree* tree, rb_node* loc)
+    rb_iterator(rb_tree<T,Cmp>* tree, rb_node<T,Cmp>* loc);
 
-    T& operator*();
-    const T& operator*();
+    const T& operator*() const { return loc_->value; }
 
     rb_iterator operator++();
     rb_iterator operator--();

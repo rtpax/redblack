@@ -4,7 +4,7 @@
 #include <functional>
 #include <utility>
 
-#include "rb_iterator."
+#include "rb_iterator.hh"
 
 template <class T, class Cmp>
 class rb_test;
@@ -26,10 +26,11 @@ public:
     enum direction { left = 0, right = 1 };
 
 private:
-    rb_node<T>* root_;
+    rb_node<T,Cmp>* root_;
     size_t size_;
 
-    void rotate(rb_node<T,Cmp>*, rb_tree::direction);
+    void rotate_right(rb_node<T,Cmp>*);
+    void rotate_left(rb_node<T,Cmp>*);
     void balance_at(rb_node<T,Cmp>*);
 
 public:

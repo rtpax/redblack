@@ -21,7 +21,7 @@ struct rb_node {
 
     bool is_root() { return parent == nullptr; }
     bool is_leaf() { return left == nullptr || right == nullptr; }
-    rb_node* brother() { return parent->left == parent.right ? parent->left; }
+    rb_node* brother() { return parent->left == this ? parent->right : parent->left; }
     std::pair<rb_node*,bool> unbalanced_insert(T&& value);
 };
 

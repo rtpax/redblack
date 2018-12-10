@@ -1,5 +1,0 @@
-~   split into tree, node, iterator files
-~   split rotate into rotate_right, rotate_left
-~   created balancing function in tree
-~   finished insert
-

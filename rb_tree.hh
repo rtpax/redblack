@@ -5,14 +5,7 @@
 #include <utility>
 
 #include "rb_iterator.hh"
-
-template <class T, class Cmp>
-class rb_test;
-template <class T, class Cmp>
-class rb_node;
-template <class T, class Cmp, bool is_const, bool is_reverse>
-class rb_iterator;
-
+#include "rb_node.hh"
 
 template<class T, class Cmp = std::less<T> >
 class rb_tree {
@@ -22,10 +15,11 @@ public:
     typedef rb_iterator<T,Cmp,true ,false> const_iterator;
     typedef rb_iterator<T,Cmp,false,true > reverse_iterator;
     typedef rb_iterator<T,Cmp,true ,true > const_reverse_iterator;
-    
-    enum direction { left = 0, right = 1 };
 
 private:
+    static constexpr typename rb_node<T,Cmp>::color_type black = rb_node<T,Cmp>::black;
+    static constexpr typename rb_node<T,Cmp>::color_type red = rb_node<T,Cmp>::red;
+
     rb_node<T,Cmp>* root_;
     size_t size_;
 
@@ -33,21 +27,28 @@ private:
     void rotate_left(rb_node<T,Cmp>*);
     void balance_at(rb_node<T,Cmp>*);
 
+    rb_node<T,Cmp>* first_node();
+    rb_node<T,Cmp>* last_node();
+    const rb_node<T,Cmp>* first_node() const;
+    const rb_node<T,Cmp>* last_node() const;
+
 public:
-    rb_tree();
+    rb_tree() : root_(nullptr), size_(0) {}
 
-    iterator insert(const T& value) { return insert(std::move(T(value))); }
-    iterator insert(T&& value);
-    iterator remove(const T& value);
+    //TODO create a move version of insert
+    iterator insert(const T& value);
+    //iterator remove(const T& value);
 
-    iterator begin();
-    iterator end();
-    const_iterator cbegin() const;
-    const_iterator cend() const;
-    reverse_iterator rbegin();
-    reverse_iterator rend();
-    const_reverse_iterator crbegin() const;
-    const_reverse_iterator crend() const;            
+    iterator begin() { return iterator(first_node()); }
+    iterator end() { return iterator(nullptr); }
+    const_iterator cbegin() const { return const_iterator(first_node()); }
+    const_iterator cend() const { return const_iterator(nullptr); }
+    reverse_iterator rbegin()  { return reverse_iterator(last_node()); }
+    reverse_iterator rend() { return reverse_iterator(nullptr); }
+    const_reverse_iterator crbegin() const  { return const_reverse_iterator(last_node()); }
+    const_reverse_iterator crend() const { return const_reverse_iterator(nullptr); }
 };
+
+#include "rb_tree.tcc"
 
 #endif

@@ -34,7 +34,7 @@ INSTALL_DIR := ~/bin
 
 LD_LIBS :=
 
-SHARED_SRCS := rb_tree.cc rb_node.cc
+SHARED_SRCS :=
 
 T_SRCS := test.cc $(SHARED_SRCS)
 T_OBJS := $(T_SRCS:%.cc=$(BUILD_DIR)/%.o)

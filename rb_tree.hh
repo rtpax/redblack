@@ -3,11 +3,12 @@
 
 #include <functional>
 #include <utility>
+#include <memory>
 
 #include "rb_iterator.hh"
 #include "rb_node.hh"
 
-template<class T, class Cmp = std::less<T> >
+template<class T, class Cmp = std::less<T>>
 class rb_tree {
     friend rb_test<T,Cmp>;
 public:

@@ -85,7 +85,6 @@ rb_node<T,Cmp>* rb_node<T,Cmp>::sequential_prev() {
 
 template <class T, class Cmp>
 void rb_node<T,Cmp>::dump_tree(int depth) {
-#ifdef DEBUG
     if(!is_root() && is_left()) {
         std::cout << "<-";
     } else if (!is_root() && is_right()) {
@@ -101,5 +100,4 @@ void rb_node<T,Cmp>::dump_tree(int depth) {
         left->dump_tree(depth+1);
     if(right)
         right->dump_tree(depth+1);
-#endif
 }

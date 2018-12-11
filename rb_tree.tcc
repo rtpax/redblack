@@ -16,6 +16,9 @@ void rb_tree<T,Cmp>::rotate_right(rb_node<T,Cmp>* pivot) {
     pivot->left = left_right;
     pivot->parent = left;
 
+    if(left_right != nullptr)
+        left_right->parent = pivot;
+
     if(parent == nullptr) {
         root_ = left;
     } else if (parent->left == pivot) {
@@ -29,7 +32,7 @@ template<class T, class Cmp>
 void rb_tree<T,Cmp>::rotate_left(rb_node<T,Cmp>* pivot) {
     rb_node<T,Cmp>* parent = pivot->parent;
     rb_node<T,Cmp>* right = pivot->right;
-    //assume left exists    
+    //assume right exists    
     rb_node<T,Cmp>* right_left = pivot->right->left;
 
     right->parent = parent;
@@ -37,6 +40,9 @@ void rb_tree<T,Cmp>::rotate_left(rb_node<T,Cmp>* pivot) {
 
     pivot->right = right_left;
     pivot->parent = right;
+
+    if(right_left != nullptr)
+        right_left->parent = pivot;
 
     if(parent == nullptr) {
         root_ = right;
@@ -73,7 +79,9 @@ void rb_tree<T,Cmp>::balance_at(rb_node<T,Cmp>* loc) {
     } else if(loc->parent->color == black) {
         loc->color = red;
     } else {//parent is red
-        //loc implicitly has a grandparent
+        //loc implicitly has a black grandparent
+        assert(loc->parent->color == red);
+        assert(loc->parent->parent->color == black);
         rb_node<T,Cmp>* uncle = loc->parent->brother();
         if(uncle == nullptr) {
 #ifdef DEBUG
@@ -84,21 +92,21 @@ void rb_tree<T,Cmp>::balance_at(rb_node<T,Cmp>* loc) {
             }
 #endif
             loc->parent->parent->color = red;
-            if(loc->parent->is_right() == loc->is_left()) {
+            if(loc->parent->is_right() && loc->is_left()) {
                 loc->parent->color = red;
                 loc->color = black;
                 rotate_right(loc->parent);
                 rotate_left(loc->parent);//now grandparent
-            } else if(loc->parent->is_right() == loc->is_left()) {
+            } else if(loc->parent->is_left() && loc->is_right()) {
                 loc->parent->color = red;
                 loc->color = black;
                 rotate_left(loc->parent);
                 rotate_right(loc->parent);
-            } else if(loc->parent->is_left()) {
+            } else if(loc->parent->is_left()) {//loc->is_left()
                 loc->parent->color = black;
                 loc->color = red;
                 rotate_right(loc->parent->parent);
-            } else {
+            } else {//loc->parent->is_right() && loc->isright()
                 loc->parent->color = black;
                 loc->color = red;
                 rotate_left(loc->parent->parent);

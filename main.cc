@@ -9,9 +9,13 @@ int main(int argc, char ** argv) {
         a.insert(std::stoi(argv[i]));
     }
 
-    for(int i : a) {
-        std::cout << i << ", ";
+    while(a.size() > 0) {
+        for(int i : a) {
+            std::cout << i << ", ";
+        }
+        std::cout << "\n";
+        a.erase(a.begin());
     }
 
-    std::cout << "\n";
+
 }

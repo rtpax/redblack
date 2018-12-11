@@ -26,7 +26,11 @@ private:
 
     void rotate_right(rb_node<T,Cmp>*);
     void rotate_left(rb_node<T,Cmp>*);
-    void balance_at(rb_node<T,Cmp>*);
+    void balance_insertion(rb_node<T,Cmp>*);
+    void balance_right_deletion(rb_node<T,Cmp>*);
+    void balance_left_deletion(rb_node<T,Cmp>*);
+    void treat_as_delete(rb_node<T,Cmp>*);
+    rb_node<T,Cmp>* unbalanced_delete(rb_node<T,Cmp>*);
 
     rb_node<T,Cmp>* first_node();
     rb_node<T,Cmp>* last_node();
@@ -38,7 +42,12 @@ public:
 
     //TODO create a move version of insert
     iterator insert(const T& value);
-    //iterator remove(const T& value);
+    bool contains(const T& value) const;
+    iterator find(const T& value);
+    const_iterator find(const T& value) const;
+    iterator erase(iterator);
+
+    size_t size() const { return size_; }
 
     iterator begin() { return iterator(first_node()); }
     iterator end() { return iterator(nullptr); }

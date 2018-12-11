@@ -14,7 +14,7 @@ class rb_iterator;
 template<class T, class Cmp>
 struct rb_node {
     friend rb_test<T,Cmp>;
-    enum color_type { red = 0, black = 1 };
+    enum color_type { red, black };
 
     color_type color;
     T elem;

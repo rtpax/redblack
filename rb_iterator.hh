@@ -28,17 +28,17 @@ public:
 
     const T& operator*() const { return loc_->elem; }
 
-    bool operator==(rb_iterator<T,Cmp,true,true>& arg) { return loc_ == arg.loc_; }
-    bool operator!=(rb_iterator<T,Cmp,true,true>& arg) { return loc_ != arg.loc_; }
+    bool operator==(const rb_iterator<T,Cmp,true,true>& arg) { return loc_ == arg.loc_; }
+    bool operator!=(const rb_iterator<T,Cmp,true,true>& arg) { return loc_ != arg.loc_; }
 
-    bool operator==(rb_iterator<T,Cmp,true,false>& arg) { return loc_ == arg.loc_; }
-    bool operator!=(rb_iterator<T,Cmp,true,false>& arg) { return loc_ != arg.loc_; }
+    bool operator==(const rb_iterator<T,Cmp,true,false>& arg) { return loc_ == arg.loc_; }
+    bool operator!=(const rb_iterator<T,Cmp,true,false>& arg) { return loc_ != arg.loc_; }
 
-    bool operator==(rb_iterator<T,Cmp,false,true>& arg) { return loc_ == arg.loc_; }
-    bool operator!=(rb_iterator<T,Cmp,false,true>& arg) { return loc_ != arg.loc_; }
+    bool operator==(const rb_iterator<T,Cmp,false,true>& arg) { return loc_ == arg.loc_; }
+    bool operator!=(const rb_iterator<T,Cmp,false,true>& arg) { return loc_ != arg.loc_; }
 
-    bool operator==(rb_iterator<T,Cmp,false,false>& arg) { return loc_ == arg.loc_; }
-    bool operator!=(rb_iterator<T,Cmp,false,false>& arg) { return loc_ != arg.loc_; }
+    bool operator==(const rb_iterator<T,Cmp,false,false>& arg) { return loc_ == arg.loc_; }
+    bool operator!=(const rb_iterator<T,Cmp,false,false>& arg) { return loc_ != arg.loc_; }
 
     rb_iterator operator++() {
         if(is_reverse)

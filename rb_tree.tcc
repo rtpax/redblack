@@ -351,6 +351,28 @@ inline const rb_node<T,Cmp>* rb_tree<T,Cmp>::last_node() const {
     return ret;
 }
 
+template<class T, class Cmp>
+inline typename rb_tree<T,Cmp>::iterator rb_tree<T,Cmp>::find(const T& value) {
+    rb_node<T,Cmp>* cur = root_;
+    Cmp cmp;
+    while(cur != nullptr) {
+        if(cmp(value, cur->elem)) {
+            cur = cur->left;
+        } else if (cmp(cur->elem, value)) {
+            cur = cur->right;
+        } else { 
+            break;
+        }
+    }
+    return iterator(cur);
+}
 
+template<class T, class Cmp>
+inline typename rb_tree<T,Cmp>::const_iterator rb_tree<T,Cmp>::find(const T& value) const {
+    return const_iterator(const_cast<rb_tree*>(this)->find(value));
+}
 
-
+template<class T, class Cmp>
+inline bool rb_tree<T,Cmp>::contains(const T& value) const {
+    return find(value) == cend();
+}

@@ -11,6 +11,7 @@
 template<class T, class Cmp = std::less<T>>
 class rb_tree {
     friend rb_test<T,Cmp>;
+    friend int main(int,char**);
 public:
     typedef rb_iterator<T,Cmp,false,false> iterator;
     typedef rb_iterator<T,Cmp,true ,false> const_iterator;
@@ -41,6 +42,7 @@ public:
     rb_tree() : root_(nullptr), size_(0) {}
 
     //TODO create a move version of insert
+    //TODO create reverse_iterator versions of insert and erase
     iterator insert(const T& value);
     bool contains(const T& value) const;
     iterator find(const T& value);
@@ -48,6 +50,7 @@ public:
     iterator erase(iterator);
 
     size_t size() const { return size_; }
+    bool empty() const { return size_ == 0; }
 
     iterator begin() { return iterator(first_node()); }
     iterator end() { return iterator(nullptr); }

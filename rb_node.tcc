@@ -1,17 +1,19 @@
 #include "rb_node.hh"
 #include <stdexcept>
+#include <cassert>
 
-template<class T, class Cmp> 
+template<class T, class Cmp>
 std::pair<rb_node<T,Cmp>*, bool>  rb_node<T,Cmp>::unbalanced_insert(const T& value) {
-    Cmp cmp = Cmp();
-    if(cmp(value, elem)) {
+    Cmp cmp;
+    //if elem == nullptr, node is end or rend
+    if(is_end() || (has_elem() && cmp(value, *elem))) {
         if(left == nullptr) {
             left = new rb_node<T,Cmp>(value, red, this);
             return std::pair<rb_node<T,Cmp>*, bool>(left, true);
         } else {
             return left->unbalanced_insert(value);
         }
-    } else if (cmp(elem, value)) {
+    } else if(is_rend() || (has_elem() && cmp(*elem, value))) {
         if(right == nullptr) {
             right = new rb_node<T, Cmp>(value, red, this);
             return std::pair<rb_node<T,Cmp>*, bool>(right, true);
@@ -29,10 +31,7 @@ rb_node<T,Cmp>* rb_node<T,Cmp>::sequential_next() {
         rb_node* cur = right;
         while(cur->left != nullptr) {
             cur = cur->left;
-#ifdef DEBUG
-            if(cur == right)
-                throw std::logic_error("infinite nodes");
-#endif
+            assert(cur != right);
         }
         return cur;
     } else {
@@ -44,10 +43,7 @@ rb_node<T,Cmp>* rb_node<T,Cmp>::sequential_next() {
             else {
                 cur = cur->parent;
             }
-#ifdef DEBUG
-            if(cur == this)
-                throw std::logic_error("infinite nodes");
-#endif
+            assert(cur != this);
         }
         return nullptr;
     }
@@ -59,10 +55,7 @@ rb_node<T,Cmp>* rb_node<T,Cmp>::sequential_prev() {
         rb_node* cur = left;
         while(cur->right != nullptr) {
             cur = cur->right;
-#ifdef DEBUG
-            if(cur == left)
-                throw std::logic_error("infinite nodes");
-#endif
+            assert(cur != left);
         }
         return cur;
     } else {
@@ -74,10 +67,7 @@ rb_node<T,Cmp>* rb_node<T,Cmp>::sequential_prev() {
             else {
                 cur = cur->parent;
             }
-#ifdef DEBUG
-            if(cur == this)
-                throw std::logic_error("infinite nodes");
-#endif
+            assert(cur != this);
         }
         return nullptr;
     }
@@ -85,19 +75,37 @@ rb_node<T,Cmp>* rb_node<T,Cmp>::sequential_prev() {
 
 template <class T, class Cmp>
 void rb_node<T,Cmp>::dump_tree(int depth) {
-    if(!is_root() && is_left()) {
+    if(is_root()) {
+        std::cout << "--";
+    } else if(is_left()) {
         std::cout << "<-";
-    } else if (!is_root() && is_right()) {
+    } else if (is_right()) {
         std::cout << "->";
     } else {
-        std::cout << "--";
+        std::cout << "##";
     }
+
     for(int i = 0; i < depth; ++i) {
         std::cout << " ";
     }
-    std::cout << elem << (color == black ? "b" : "r") << "\n";
+
+    std::cout << (elem ? std::to_string(*elem) : (is_end() ? std::string("end ") : std::string("rend "))) << (color == black ? "b" : "r") << "\n";
     if(left)
         left->dump_tree(depth+1);
     if(right)
         right->dump_tree(depth+1);
+}
+
+template <class T, class Cmp>
+void rb_node<T,Cmp>::dump_node() {
+    std::cout << this << ":\n";
+    std::cout << "node-type: " << (is_end() ? "end" : is_rend() ? "rend" : "elem") << "\n";
+    std::cout << "child-type: " << (is_root() ? "root" : is_left() ? "left" : is_right() ? "right" : "error") << "\n";
+    std::cout << elem << "\n";
+    std::cout << "color: " << (color == red ? std::string("red") 
+            : color == black ? std::string("black") 
+            : std::string("error-color:") + std::to_string((int)color)) << "\n";
+    std::cout << "parent: " << parent << "\n";
+    std::cout << "right: " << right << "\n";
+    std::cout << "left: " << left << "\n";
 }

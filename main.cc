@@ -14,20 +14,23 @@ int main(int argc, char ** argv) {
     for(int i : a) {
         std::cout << i << ", ";
     }
+    std::cout << "\n\n";
+
+    a.root_->dump_tree(0);
+
     std::cout << "\n";
 
     for(i = i + 1; i < argc; ++i) {
-        a.root_->dump_tree(0);
-        std::cout << "+++++++++++++++++++++++++++++\n";
         auto it = a.find(std::stoi(argv[i]));
         if(it != a.end())
             a.erase(it);
     }
-    a.root_->dump_tree(0);
-    std::cout << "+++++++++++++++++++++++++++++\n";
 
     for(int i : a) {
         std::cout << i << ", ";
     }
-    std::cout << "\n";
+    std::cout << "\n\n";
+
+    a.root_->dump_tree(0);
+
 }

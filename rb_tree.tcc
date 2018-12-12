@@ -53,13 +53,9 @@ inline void rb_tree<T,Cmp>::rotate_left(rb_node<T,Cmp>* pivot) {
     }
 }
 
-template<class T, class Cmp> 
+template<class T, class Cmp>
 inline typename rb_tree<T,Cmp>::iterator rb_tree<T,Cmp>::insert(const T& value) {
-    if(root_ == nullptr) {
-        root_ = new rb_node<T,Cmp>(value,rb_node<T,Cmp>::black,nullptr);
-        size_ = 1;
-        return iterator(root_);
-    }
+    assert(root_ != nullptr);
     auto insertion = root_->unbalanced_insert(value);
     if(insertion.first == nullptr) {
         return end(); //pretty sure this can't happen
@@ -74,28 +70,131 @@ inline typename rb_tree<T,Cmp>::iterator rb_tree<T,Cmp>::insert(const T& value) 
 
 template<class T, class Cmp>
 inline typename rb_tree<T,Cmp>::iterator rb_tree<T,Cmp>::erase(iterator it) {
+    assert(it.loc_ != end_);
+    assert(it.loc_ != rend_);
     iterator ret = it;
     ++ret;
     --size_;
-    if(it.loc_->right == nullptr || it.loc_->left == nullptr) {
-        auto node = unbalanced_delete(it.loc_);
-        if(node != nullptr)
+    auto remove_node = it.loc_;
+    if(!(remove_node->right == nullptr) != !(remove_node->left == nullptr)) {
+        auto color = remove_node->color;
+        auto node = unbalanced_delete(remove_node);
+        if(node != nullptr && color == black) {
             treat_as_delete(node);
-    } else {
-        ++it;//could just as well do --it
-        assert(it.loc_->left == nullptr);//would be right instead for --it;
-        if(it.loc_->is_right()) {
-            auto node = it.loc_->parent;
-            unbalanced_delete(it.loc_);
-            balance_right_deletion(node);
         } else {
-            assert(it.loc_->is_left());
-            auto node = it.loc_->parent;
-            unbalanced_delete(it.loc_);
-            balance_left_deletion(node);
+            assert(size_ == 0);
+        }
+    } else {
+        if(remove_node->right != nullptr && remove_node->left != nullptr) {
+            auto replace_node = remove_node->sequential_next();//could have done prev
+            assert(replace_node != nullptr);
+            assert(replace_node->left == nullptr);//would be right instead for prev
+            swap_nodes(remove_node, replace_node);
+        }
+        auto color = remove_node->color;
+        if(remove_node == nullptr) {
+            assert(it.loc_ == root_);
+            delete root_;
+            root_ = nullptr;    
+        } else if(remove_node->is_right()) {
+            auto node = remove_node->parent;
+            unbalanced_delete(remove_node);
+            if(color == black)
+                balance_right_deletion(node);
+        } else {
+            assert(remove_node->is_left());
+            auto node = remove_node->parent;
+            unbalanced_delete(remove_node);
+            if(color == black)
+                balance_left_deletion(node);
         }
     }
     return ret;
+}
+
+template<class T, class Cmp>
+inline void rb_tree<T,Cmp>::swap_nodes(rb_node<T,Cmp>* a, rb_node<T,Cmp>* b) {
+    assert(a->is_root() || a->is_right() || a->is_left());
+    assert(b->is_root() || b->is_right() || b->is_left());
+
+    enum relation { right_child, left_child, right_parent, left_parent, none };
+    relation a_to_b = 
+            a->right == b ? right_parent : 
+            a->left == b ? left_parent :
+            b->right == a ? right_child :
+            b->left == a ? left_child :
+            none;
+
+    auto a_parent = a->parent;
+    auto a_right = a->right;
+    auto a_left = a->left;
+    auto a_color = a->color;
+
+    auto b_parent = b->parent;
+    auto b_right = b->right;
+    auto b_left = b->left;
+    auto b_color = b->color;
+
+    switch (a_to_b) {
+    case right_parent:
+        a_right = a;
+        b_parent = b;
+        break;
+    case left_parent:
+        a_left = a;
+        b_parent = b;
+        break;
+    case right_child:
+        b_right = b;
+        a_parent = a;
+        break;
+    case left_child:
+        b_left = b;
+        a_parent = a;
+        break;
+    case none:
+        break;
+    }
+
+    if(!a->is_root()) {
+        if(a->is_right())
+            a->parent->right = b;
+        else
+            a->parent->left = b;
+    } else {
+        root_ = b;
+    }
+
+    if(!b->is_root()) {
+        if(b->is_right())
+            b->parent->right = a;
+        else
+            b->parent->left = a;
+    } else { 
+        root_ = a;
+    }
+
+    if(a->has_right())
+        a->right->parent = b;
+    if(a->has_left())
+        a->left->parent = b;
+ 
+    if(b->has_right())
+        b->right->parent = a;
+    if(b->has_left())
+        b->left->parent = a;
+
+    a->parent = b_parent;
+    a->right = b_right;
+    a->left = b_left;
+    a->color = b_color;
+
+    b->parent = a_parent;
+    b->right = a_right;
+    b->left = a_left;
+    b->color = a_color;
+
+
 }
 
 template<class T, class Cmp>
@@ -141,14 +240,7 @@ inline void rb_tree<T,Cmp>::balance_insertion(rb_node<T,Cmp>* loc) {
         assert(loc->parent->color == red);
         assert(loc->parent->parent->color == black);
         rb_node<T,Cmp>* uncle = loc->parent->brother();
-        if(uncle == nullptr) {
-#ifdef DEBUG
-            if(loc->brother() != nullptr) {
-                std::cout << "uncle == nullptr but brother != nullptr\n";
-                root_->dump_tree();
-                exit(1);
-            }
-#endif
+        if(uncle == nullptr || uncle->color == black) {
             loc->parent->parent->color = red;
             if(loc->parent->is_right() && loc->is_left()) {
                 loc->parent->color = red;
@@ -169,15 +261,6 @@ inline void rb_tree<T,Cmp>::balance_insertion(rb_node<T,Cmp>* loc) {
                 loc->color = red;
                 rotate_left(loc->parent->parent);
             }
-        } else if(uncle->color == black) {
-            uncle->color = red;
-            loc->color = red;
-            if(loc->parent->is_left()) {
-                rotate_right(loc->parent->parent);
-            } else {
-                rotate_left(loc->parent->parent);
-            }
-            balance_insertion(loc->parent->parent);
         } else { //uncle is red
             loc->parent->color = black;
             uncle->color = black;
@@ -210,8 +293,10 @@ inline void rb_tree<T,Cmp>::balance_left_deletion(rb_node<T,Cmp>* loc) {
             loc->color = red;
             loc->right->color = black;
             rotate_left(loc);
-        } else if (loc->color == red) {
-            assert(loc->right->color = black);
+            //fall through to next if
+        }
+        if (loc->color == red) {
+            assert(loc->right->color == black);
             if(loc->right->right != nullptr && loc->right->right->color == red) {
                 loc->right->right->color = black;
                 loc->right->color = red;
@@ -221,7 +306,6 @@ inline void rb_tree<T,Cmp>::balance_left_deletion(rb_node<T,Cmp>* loc) {
                 loc->right->color = black;
                 loc->color = red;
                 rotate_left(loc);
-                treat_as_delete(loc->parent);
             } else {
                 loc->right->left->color = black;
                 loc->right->color = red;
@@ -246,12 +330,13 @@ inline void rb_tree<T,Cmp>::balance_left_deletion(rb_node<T,Cmp>* loc) {
             } else {
                 assert(loc->right->left->color == red);
                 assert(loc->right->color == black);
+                loc->right->left->color = black;
+                loc->right->color = red;
                 rotate_right(loc->right);
-                assert(loc->right->color == red);
+                assert(loc->right->color == black);
                 assert(loc->color == black);
-                //we are now back at situation loc->right->color == red, do the same as there
-                loc->color = red;
-                loc->right->color = black; //different loc->right from before
+                //we are now back at situation loc->right->right->color == red, do the same as there
+                loc->right->right->color = black;
                 rotate_left(loc);
             }
         }
@@ -271,8 +356,10 @@ inline void rb_tree<T,Cmp>::balance_right_deletion(rb_node<T,Cmp>* loc) {
             loc->color = red;
             loc->left->color = black;
             rotate_right(loc);
-        } else if (loc->color == red) {
-            assert(loc->left->color = black);
+            //fall through to next if
+        }
+        if (loc->color == red) {
+            assert(loc->left->color == black);
             if(loc->left->left != nullptr && loc->left->left->color == red) {
                 loc->left->left->color = black;
                 loc->left->color = red;
@@ -282,7 +369,6 @@ inline void rb_tree<T,Cmp>::balance_right_deletion(rb_node<T,Cmp>* loc) {
                 loc->left->color = black;
                 loc->color = red;
                 rotate_right(loc);
-                treat_as_delete(loc->parent);
             } else {
                 loc->left->right->color = black;
                 loc->left->color = red;
@@ -307,12 +393,13 @@ inline void rb_tree<T,Cmp>::balance_right_deletion(rb_node<T,Cmp>* loc) {
             } else {
                 assert(loc->left->right->color == red);
                 assert(loc->left->color == black);
+                loc->left->right->color = black;
+                loc->left->color = red;
                 rotate_left(loc->left);
                 assert(loc->left->color == red);
                 assert(loc->color == black);
-                //we are now back at situation loc->left->color == red, do the same as there
-                loc->color = red;
-                loc->left->color = black; //different loc->left from before
+                //we are now back at situation loc->left->left->color == red, do the same as there
+                loc->left->left->color = black;
                 rotate_right(loc);
             }
         }
@@ -320,50 +407,20 @@ inline void rb_tree<T,Cmp>::balance_right_deletion(rb_node<T,Cmp>* loc) {
 }
 
 template<class T, class Cmp>
-inline rb_node<T,Cmp>* rb_tree<T,Cmp>::first_node() {
-    return const_cast<rb_node<T,Cmp>*>(const_cast<const rb_tree*>(this)->first_node());
-}
-
-template<class T, class Cmp>
-inline rb_node<T,Cmp>* rb_tree<T,Cmp>::last_node() {
-    return const_cast<rb_node<T,Cmp>*>(const_cast<const rb_tree*>(this)->last_node());
-}
-
-template<class T, class Cmp>
-inline const rb_node<T,Cmp>* rb_tree<T,Cmp>::first_node() const {
-    if(root_ == nullptr)
-        return nullptr;
-    auto ret = root_;
-    while(ret->left != nullptr) {
-        ret = ret->left;
-    }
-    return ret;
-}
-
-template<class T, class Cmp>
-inline const rb_node<T,Cmp>* rb_tree<T,Cmp>::last_node() const {
-    if(root_ == nullptr)
-        return nullptr;
-    auto ret = root_;
-    while(ret->left != nullptr) {
-        ret = ret->left;
-    }
-    return ret;
-}
-
-template<class T, class Cmp>
 inline typename rb_tree<T,Cmp>::iterator rb_tree<T,Cmp>::find(const T& value) {
     rb_node<T,Cmp>* cur = root_;
     Cmp cmp;
     while(cur != nullptr) {
-        if(cmp(value, cur->elem)) {
+        if(cur->is_end() || (cur->has_elem() && cmp(value, *cur->elem))) {
             cur = cur->left;
-        } else if (cmp(cur->elem, value)) {
+        } else if(cur->is_rend() || (cur->has_elem() && cmp(*cur->elem, value))) {
             cur = cur->right;
-        } else { 
+        } else {
             break;
         }
     }
+    if(cur == nullptr)
+        return end();
     return iterator(cur);
 }
 

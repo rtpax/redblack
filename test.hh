@@ -3,7 +3,7 @@
 /**
  * This class exists solely to be a friend of rb_* and store test functions with private access
  **/
-template<class T, class Cmp>
+template<class T, class Cmp, class Alloc>
 class rb_test {
 public:
     
@@ -16,5 +16,5 @@ public:
     tree_is_red_black(const rb_tree& test) {
 
     }
-}
+};
 

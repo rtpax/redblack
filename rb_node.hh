@@ -4,16 +4,16 @@
 #include <utility>
 #include <iostream>
 
-template <class T, class Cmp>
+template <class T, class Cmp, class Alloc>
 class rb_test;
-template <class T, class Cmp>
+template <class T, class Cmp, class Alloc>
 class rb_node;
-template <class T, class Cmp, bool is_const, bool is_reverse>
+template <class T, class Cmp, class Alloc, bool is_const, bool is_reverse>
 class rb_iterator;
 
-template<class T, class Cmp>
+template<class T, class Cmp, class Alloc>
 struct rb_node {
-    friend rb_test<T,Cmp>;
+    friend rb_test<T,Cmp,Alloc>;
     enum color_type { red, black };
 
     color_type color;

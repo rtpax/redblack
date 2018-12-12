@@ -3,7 +3,7 @@
 #include <string>
 
 int main(int argc, char ** argv) {
-    rb_tree<int> a;
+    rb_tree<int> a = { 9,8,7,6,5,4,3,2,1,10 };
 
     char break_char = '/';
     int i = 1;
@@ -14,10 +14,6 @@ int main(int argc, char ** argv) {
     for(int i : a) {
         std::cout << i << ", ";
     }
-    std::cout << "\n\n";
-
-    a.root_->dump_tree(0);
-
     std::cout << "\n";
 
     for(i = i + 1; i < argc; ++i) {
@@ -29,8 +25,6 @@ int main(int argc, char ** argv) {
     for(int i : a) {
         std::cout << i << ", ";
     }
-    std::cout << "\n\n";
-
-    a.root_->dump_tree(0);
+    std::cout << "\n";
 
 }

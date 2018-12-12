@@ -1,45 +1,45 @@
 #ifndef RB_ITERATOR_HH
 #define RB_ITERATOR_HH
 
-template <class T, class Cmp>
+template <class T, class Cmp, class Alloc>
 class rb_test;
-template <class T, class Cmp>
+template <class T, class Cmp, class Alloc>
 class rb_node;
-template <class T, class Cmp>
+template <class T, class Cmp, class Alloc>
 class rb_tree;
 
-template<class T, class Cmp, bool is_const, bool is_reverse>
+template<class T, class Cmp, class Alloc, bool is_const, bool is_reverse>
 class rb_iterator {
-    friend rb_test<T,Cmp>;
-    friend rb_tree<T,Cmp>;
-    friend rb_iterator<T,Cmp,true,true>;
-    friend rb_iterator<T,Cmp,true,false>;
-    friend rb_iterator<T,Cmp,false,true>;
-    friend rb_iterator<T,Cmp,false,false>;
+    friend rb_test<T,Cmp,Alloc>;
+    friend rb_tree<T,Cmp,Alloc>;
+    friend rb_iterator<T,Cmp,Alloc,true,true>;
+    friend rb_iterator<T,Cmp,Alloc,true,false>;
+    friend rb_iterator<T,Cmp,Alloc,false,true>;
+    friend rb_iterator<T,Cmp,Alloc,false,false>;
     friend int main(int,char**);
 private:
-    typedef rb_node<T,Cmp> node_type;
+    typedef rb_node<T,Cmp,Alloc> node_type;
     node_type* loc_;
 public:
-    rb_iterator(rb_node<T,Cmp>* loc) : loc_(loc) {}
-    rb_iterator(std::enable_if<is_const, const rb_iterator<T,Cmp,true,true>&> arg) : loc_(arg.loc_) {}
-    rb_iterator(std::enable_if<is_const, const rb_iterator<T,Cmp,true,false>&> arg) : loc_(arg.loc_) {}
-    rb_iterator(const rb_iterator<T,Cmp,false,true>& arg) : loc_(arg.loc_) {}
-    rb_iterator(const rb_iterator<T,Cmp,false,false>& arg) : loc_(arg.loc_) {}
+    rb_iterator(rb_node<T,Cmp,Alloc>* loc) : loc_(loc) {}
+    rb_iterator(std::enable_if<is_const, const rb_iterator<T,Cmp,Alloc,true,true>&> arg) : loc_(arg.loc_) {}
+    rb_iterator(std::enable_if<is_const, const rb_iterator<T,Cmp,Alloc,true,false>&> arg) : loc_(arg.loc_) {}
+    rb_iterator(const rb_iterator<T,Cmp,Alloc,false,true>& arg) : loc_(arg.loc_) {}
+    rb_iterator(const rb_iterator<T,Cmp,Alloc,false,false>& arg) : loc_(arg.loc_) {}
 
     const T& operator*() const { return *loc_->elem; }
 
-    bool operator==(const rb_iterator<T,Cmp,true,true>& arg) { return loc_ == arg.loc_; }
-    bool operator!=(const rb_iterator<T,Cmp,true,true>& arg) { return loc_ != arg.loc_; }
+    bool operator==(const rb_iterator<T,Cmp,Alloc,true,true>& arg) { return loc_ == arg.loc_; }
+    bool operator!=(const rb_iterator<T,Cmp,Alloc,true,true>& arg) { return loc_ != arg.loc_; }
 
-    bool operator==(const rb_iterator<T,Cmp,true,false>& arg) { return loc_ == arg.loc_; }
-    bool operator!=(const rb_iterator<T,Cmp,true,false>& arg) { return loc_ != arg.loc_; }
+    bool operator==(const rb_iterator<T,Cmp,Alloc,true,false>& arg) { return loc_ == arg.loc_; }
+    bool operator!=(const rb_iterator<T,Cmp,Alloc,true,false>& arg) { return loc_ != arg.loc_; }
 
-    bool operator==(const rb_iterator<T,Cmp,false,true>& arg) { return loc_ == arg.loc_; }
-    bool operator!=(const rb_iterator<T,Cmp,false,true>& arg) { return loc_ != arg.loc_; }
+    bool operator==(const rb_iterator<T,Cmp,Alloc,false,true>& arg) { return loc_ == arg.loc_; }
+    bool operator!=(const rb_iterator<T,Cmp,Alloc,false,true>& arg) { return loc_ != arg.loc_; }
 
-    bool operator==(const rb_iterator<T,Cmp,false,false>& arg) { return loc_ == arg.loc_; }
-    bool operator!=(const rb_iterator<T,Cmp,false,false>& arg) { return loc_ != arg.loc_; }
+    bool operator==(const rb_iterator<T,Cmp,Alloc,false,false>& arg) { return loc_ == arg.loc_; }
+    bool operator!=(const rb_iterator<T,Cmp,Alloc,false,false>& arg) { return loc_ != arg.loc_; }
 
     rb_iterator operator++() {
         if(is_reverse)

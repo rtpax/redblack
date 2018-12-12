@@ -2,31 +2,31 @@
 #include <stdexcept>
 #include <cassert>
 
-template<class T, class Cmp>
-std::pair<rb_node<T,Cmp>*, bool>  rb_node<T,Cmp>::unbalanced_insert(const T& value) {
+template<class T, class Cmp, class Alloc>
+std::pair<rb_node<T,Cmp,Alloc>*, bool>  rb_node<T,Cmp,Alloc>::unbalanced_insert(const T& value) {
     Cmp cmp;
     //if elem == nullptr, node is end or rend
     if(is_end() || (has_elem() && cmp(value, *elem))) {
         if(left == nullptr) {
-            left = new rb_node<T,Cmp>(value, red, this);
-            return std::pair<rb_node<T,Cmp>*, bool>(left, true);
+            left = new rb_node<T,Cmp,Alloc>(value, red, this);
+            return std::pair<rb_node<T,Cmp,Alloc>*, bool>(left, true);
         } else {
             return left->unbalanced_insert(value);
         }
     } else if(is_rend() || (has_elem() && cmp(*elem, value))) {
         if(right == nullptr) {
-            right = new rb_node<T, Cmp>(value, red, this);
-            return std::pair<rb_node<T,Cmp>*, bool>(right, true);
+            right = new rb_node<T,Cmp,Alloc>(value, red, this);
+            return std::pair<rb_node<T,Cmp,Alloc>*, bool>(right, true);
         } else {
             return right->unbalanced_insert(value);
         }
     } else {
-        return std::pair<rb_node<T,Cmp>*, bool>(this, false);
+        return std::pair<rb_node<T,Cmp,Alloc>*, bool>(this, false);
     }
 }
 
-template<class T, class Cmp>
-rb_node<T,Cmp>* rb_node<T,Cmp>::sequential_next() {
+template<class T, class Cmp, class Alloc>
+rb_node<T,Cmp,Alloc>* rb_node<T,Cmp,Alloc>::sequential_next() {
     if(right != nullptr) {
         rb_node* cur = right;
         while(cur->left != nullptr) {
@@ -49,8 +49,8 @@ rb_node<T,Cmp>* rb_node<T,Cmp>::sequential_next() {
     }
 }
 
-template<class T, class Cmp>
-rb_node<T,Cmp>* rb_node<T,Cmp>::sequential_prev() {
+template<class T, class Cmp, class Alloc>
+rb_node<T,Cmp,Alloc>* rb_node<T,Cmp,Alloc>::sequential_prev() {
     if(left != nullptr) {
         rb_node* cur = left;
         while(cur->right != nullptr) {
@@ -73,8 +73,8 @@ rb_node<T,Cmp>* rb_node<T,Cmp>::sequential_prev() {
     }
 }
 
-template <class T, class Cmp>
-void rb_node<T,Cmp>::dump_tree(int depth) {
+template <class T, class Cmp, class Alloc>
+void rb_node<T,Cmp,Alloc>::dump_tree(int depth) {
     if(is_root()) {
         std::cout << "--";
     } else if(is_left()) {
@@ -96,8 +96,8 @@ void rb_node<T,Cmp>::dump_tree(int depth) {
         right->dump_tree(depth+1);
 }
 
-template <class T, class Cmp>
-void rb_node<T,Cmp>::dump_node() {
+template <class T, class Cmp, class Alloc>
+void rb_node<T,Cmp,Alloc>::dump_node() {
     std::cout << this << ":\n";
     std::cout << "node-type: " << (is_end() ? "end" : is_rend() ? "rend" : "elem") << "\n";
     std::cout << "child-type: " << (is_root() ? "root" : is_left() ? "left" : is_right() ? "right" : "error") << "\n";

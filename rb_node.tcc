@@ -3,29 +3,6 @@
 #include <cassert>
 
 template<class T, class Cmp, class Alloc>
-std::pair<rb_node<T,Cmp,Alloc>*, bool>  rb_node<T,Cmp,Alloc>::unbalanced_insert(const T& value) {
-    Cmp cmp;
-    //if elem == nullptr, node is end or rend
-    if(is_end() || (has_elem() && cmp(value, *elem))) {
-        if(left == nullptr) {
-            left = new rb_node<T,Cmp,Alloc>(value, red, this);
-            return std::pair<rb_node<T,Cmp,Alloc>*, bool>(left, true);
-        } else {
-            return left->unbalanced_insert(value);
-        }
-    } else if(is_rend() || (has_elem() && cmp(*elem, value))) {
-        if(right == nullptr) {
-            right = new rb_node<T,Cmp,Alloc>(value, red, this);
-            return std::pair<rb_node<T,Cmp,Alloc>*, bool>(right, true);
-        } else {
-            return right->unbalanced_insert(value);
-        }
-    } else {
-        return std::pair<rb_node<T,Cmp,Alloc>*, bool>(this, false);
-    }
-}
-
-template<class T, class Cmp, class Alloc>
 rb_node<T,Cmp,Alloc>* rb_node<T,Cmp,Alloc>::sequential_next() {
     if(right != nullptr) {
         rb_node* cur = right;

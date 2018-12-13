@@ -56,7 +56,7 @@ inline void rb_tree<T,Cmp,Alloc>::rotate_left(rb_node<T,Cmp,Alloc>* pivot) {
 template<class T, class Cmp, class Alloc>
 inline typename rb_tree<T,Cmp,Alloc>::iterator rb_tree<T,Cmp,Alloc>::insert(const T& value) {
     assert(root_ != nullptr);
-    auto insertion = root_->unbalanced_insert(value);
+    auto insertion = unbalanced_insert(value);
     if(insertion.first == nullptr) {
         return end(); //pretty sure this can't happen
     } else if(insertion.second == false) {
@@ -111,6 +111,30 @@ inline typename rb_tree<T,Cmp,Alloc>::iterator rb_tree<T,Cmp,Alloc>::erase(itera
     }
     return ret;
 }
+
+
+template<class T, class Cmp, class Alloc>
+std::pair<rb_node<T,Cmp,Alloc>*, bool>  rb_tree<T,Cmp,Alloc>::unbalanced_insert(const T& value, rb_node<T,Cmp,Alloc>* node) {
+    //if elem == nullptr, node is end or rend
+    if(node->is_end() || (node->has_elem() && cmp_(value, *node->elem))) {
+        if(node->left == nullptr) {
+            node->left = new rb_node<T,Cmp,Alloc>(alloc_new(value), red, node);
+            return std::pair<rb_node<T,Cmp,Alloc>*, bool>(node->left, true);
+        } else {
+            return unbalanced_insert(value, node->left);
+        }
+    } else if(node->is_rend() || (node->has_elem() && cmp_(*node->elem, value))) {
+        if(node->right == nullptr) {
+            node->right = new rb_node<T,Cmp,Alloc>(alloc_new(value), red, node);
+            return std::pair<rb_node<T,Cmp,Alloc>*, bool>(node->right, true);
+        } else {
+            return unbalanced_insert(value, node->right);
+        }
+    } else {
+        return std::pair<rb_node<T,Cmp,Alloc>*, bool>(node, false);
+    }
+}
+
 
 template<class T, class Cmp, class Alloc>
 inline void rb_tree<T,Cmp,Alloc>::swap_nodes(rb_node<T,Cmp,Alloc>* a, rb_node<T,Cmp,Alloc>* b) {
@@ -225,6 +249,7 @@ inline rb_node<T,Cmp,Alloc>* rb_tree<T,Cmp,Alloc>::unbalanced_delete(rb_node<T,C
         if(to_replace_arg != nullptr)
             to_replace_arg->parent = arg->parent;
     }
+    alloc_delete(arg->elem);
     delete arg;
     return to_replace_arg;
 }
@@ -410,11 +435,10 @@ inline void rb_tree<T,Cmp,Alloc>::balance_right_deletion(rb_node<T,Cmp,Alloc>* l
 template<class T, class Cmp, class Alloc>
 inline typename rb_tree<T,Cmp,Alloc>::iterator rb_tree<T,Cmp,Alloc>::find(const T& value) {
     rb_node<T,Cmp,Alloc>* cur = root_;
-    Cmp cmp;
     while(cur != nullptr) {
-        if(cur->is_end() || (cur->has_elem() && cmp(value, *cur->elem))) {
+        if(cur->is_end() || (cur->has_elem() && cmp_(value, *cur->elem))) {
             cur = cur->left;
-        } else if(cur->is_rend() || (cur->has_elem() && cmp(*cur->elem, value))) {
+        } else if(cur->is_rend() || (cur->has_elem() && cmp_(*cur->elem, value))) {
             cur = cur->right;
         } else {
             break;

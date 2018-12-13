@@ -20,10 +20,8 @@ struct rb_node {
     const T* elem;
     rb_node *left, *right, *parent;
 
-    rb_node(T t, color_type c, rb_node* p) : color(c), elem(new T(t)), parent(p) {}
     rb_node(T* t, color_type c, rb_node* p) : color(c), elem(t), parent(p) {}
     rb_node() {}
-    ~rb_node() { delete elem; }
 
     bool is_root() { return parent == nullptr; }
     bool is_leaf() { return left == nullptr || right == nullptr; }
@@ -47,8 +45,6 @@ struct rb_node {
 
     rb_node* sequential_next();
     rb_node* sequential_prev();
-
-    std::pair<rb_node*,bool> unbalanced_insert(const T& value);
     
     void dump_tree(int depth = 0);
     void dump_node();

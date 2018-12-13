@@ -31,6 +31,16 @@ private:
     rb_node<T,Cmp,Alloc>* root_;
     size_t size_;
 
+    template<class... Args>
+    T* alloc_new(Args&&... args) {
+        T* p = alloc_.allocate(1); //TODO handle potential std::bad_alloc exception
+        return ::new((void *)p) T(std::forward<Args>(args)...);//TODO handle potential error in constructor
+    }
+    void alloc_delete(T* p) {
+        p->~T(); //TODO handle potential error in destructor
+        alloc_.deallocate(arg->elem);
+    }
+
     void rotate_right(rb_node<T,Cmp,Alloc>*);
     void rotate_left(rb_node<T,Cmp,Alloc>*);
 
@@ -39,6 +49,10 @@ private:
     void balance_left_deletion(rb_node<T,Cmp,Alloc>*);
     void treat_as_delete(rb_node<T,Cmp,Alloc>*);
 
+    std::pair<rb_node<T,Cmp,Alloc>*,bool> unbalanced_insert(const T& value) {
+        return unbalanced_insert(value, root_);
+    }
+    std::pair<rb_node<T,Cmp,Alloc>*,bool> unbalanced_insert(const T& value, rb_node<T,Cmp,Alloc>* node);
     rb_node<T,Cmp,Alloc>* unbalanced_delete(rb_node<T,Cmp,Alloc>*);
     void swap_nodes(rb_node<T,Cmp,Alloc>*,rb_node<T,Cmp,Alloc>*);
 public:

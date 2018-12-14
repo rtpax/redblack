@@ -2,37 +2,13 @@
 #include <iostream>
 #include <string>
 
-#include <list>
-#include <array>
-
-template <class T>
-struct awful_allocator {
-    static std::list<char*> memory;
-    T* allocate(size_t n) {
-        char* mem = new char[sizeof(T) * n];
-        memory.push_back(mem);
-        return (T*) mem;
-    }
-    void deallocate(const T* mem, size_t n) {
-        //ignore n
-        deallocate(mem);
-    }
-    void deallocate(const T* mem) {
-        for(auto it = memory.begin(); it != memory.end(); ++it) {
-            if(*it == (char*)mem) {
-                delete[] *it;
-                memory.erase(it);
-                return;
-            }
-        }
-        throw std::runtime_error("could not deallocate the requested memory");
-    }
-};
-
-template <class T> std::list<char*> awful_allocator<T>::memory;
+#include <vector>
+#include <random>
+#include <chrono>
+#include <set>
 
 int main(int argc, char ** argv) {
-    rb_tree<int, std::less<int>, awful_allocator<int>> a = { 9,8,7,6,5,4,3,2,1,10 };
+    rb_tree<int> a = { 9,8,7,6,5,4,3,2,1,10 };
 
     char break_char = '/';
     int i = 1;
@@ -54,12 +30,37 @@ int main(int argc, char ** argv) {
     for(int i : a) {
         std::cout << i << ", ";
     }
-    std::cout << "\n";
+    std::cout << "\n\n";
 
-    for(char* i : awful_allocator<int>::memory) {
-        std::cout << *((int*)i) << ", ";
+
+
+    //compare insertion speeds
+
+    auto now = [](){ return std::chrono::high_resolution_clock::now().time_since_epoch().count(); };
+
+    std::vector<int> base;
+    std::mt19937 rng(now());
+    for(int i = 0; i < 100000; ++i) {
+        base.push_back(rng());
     }
-    std::cout << "\n";
 
 
+    auto rb_start = now();
+    rb_tree<int> rb_tmp(base.begin(), base.end());
+    auto rb_end = now();
+
+    std::cout << "rb_tree<int>:\n"
+            << "  time: " << (rb_end - rb_start) << "\n"
+            << "  size: " << rb_tmp.size() << "\n";
+
+
+    auto set_start = now();
+    std::set<int> set_tmp(base.begin(), base.end());
+    auto set_end = now();
+
+    std::cout << "std::set<int>:\n"
+            << "  time: " << (set_end - set_start) << "\n"
+            << "  size: " << set_tmp.size() << "\n";
+
+    
 }

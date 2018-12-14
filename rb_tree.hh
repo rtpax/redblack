@@ -12,7 +12,6 @@
 template<class T, class Cmp = std::less<T>, class Alloc = std::allocator<T>>
 class rb_tree {
     friend rb_test<T,Cmp,Alloc>;
-    friend int main(int,char**);
 public:
     typedef rb_iterator<T,Cmp,Alloc,false,false> iterator;
     typedef rb_iterator<T,Cmp,Alloc,true ,false> const_iterator;
@@ -20,8 +19,9 @@ public:
     typedef rb_iterator<T,Cmp,Alloc,true ,true > const_reverse_iterator;
 
 private:
-    static constexpr typename rb_node<T,Cmp,Alloc>::color_type black = rb_node<T,Cmp,Alloc>::black;
-    static constexpr typename rb_node<T,Cmp,Alloc>::color_type red = rb_node<T,Cmp,Alloc>::red;
+    typedef rb_node<T,Cmp,Alloc> node_type;
+    static constexpr typename node_type::color_type black = node_type::black;
+    static constexpr typename node_type::color_type red = node_type::red;
 
     Cmp cmp_;
     Alloc alloc_;
@@ -38,7 +38,7 @@ private:
     }
     void alloc_delete(T* p) {
         p->~T(); //TODO handle potential error in destructor
-        alloc_.deallocate(arg->elem);
+        alloc_.deallocate(p, 1);
     }
 
     void rotate_right(rb_node<T,Cmp,Alloc>*);
@@ -78,10 +78,10 @@ public:
         }
     }
     template <class It>
-    rb_tree(It first, It last, Cmp cmp = Cmp()) : rb_tree() {
+    rb_tree(It first, It last, Cmp cmp = Cmp()) : rb_tree(cmp) {
         while(first != last) {
             insert(*first);
-            ++last;
+            ++first;
         }
     }
     rb_tree(const rb_tree& copy, Alloc alloc) : rb_tree(alloc) {
@@ -107,7 +107,7 @@ public:
     rb_tree(rb_tree&& steal, Alloc alloc) : rb_tree(steal, alloc) {}
 
 
-    iterator insert(const T& value);
+    std::pair<iterator, bool> insert(const T& value);
     bool contains(const T& value) const;
     iterator find(const T& value);
     const_iterator find(const T& value) const;
@@ -116,6 +116,9 @@ public:
     size_t max_size() const { return std::numeric_limits<size_t>::max; }
     size_t size() const { return size_; }
     bool empty() const { return size_ == 0; }
+
+    Cmp key_comp() const { return cmp_; }
+    Cmp value_comp() const { return cmp_; }
 
     iterator begin() { return ++iterator(rend_); }
     iterator end() { return iterator(end_); }

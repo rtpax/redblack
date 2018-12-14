@@ -3,7 +3,7 @@
 #include "rb_node.hh"
 #include <cassert>
 
-template<class T, class Cmp, class Alloc> 
+template<class T, class Cmp, class Alloc>
 inline void rb_tree<T,Cmp,Alloc>::rotate_right(rb_node<T,Cmp,Alloc>* pivot) {
     rb_node<T,Cmp,Alloc>* parent = pivot->parent;
     rb_node<T,Cmp,Alloc>* left = pivot->left;
@@ -54,18 +54,17 @@ inline void rb_tree<T,Cmp,Alloc>::rotate_left(rb_node<T,Cmp,Alloc>* pivot) {
 }
 
 template<class T, class Cmp, class Alloc>
-inline typename rb_tree<T,Cmp,Alloc>::iterator rb_tree<T,Cmp,Alloc>::insert(const T& value) {
+inline std::pair<typename rb_tree<T,Cmp,Alloc>::iterator, bool> rb_tree<T,Cmp,Alloc>::insert(const T& value) {
     assert(root_ != nullptr);
     auto insertion = unbalanced_insert(value);
     if(insertion.first == nullptr) {
-        return end(); //pretty sure this can't happen
-    } else if(insertion.second == false) {
-        return iterator(insertion.first);
-    } else {
+        throw std::runtime_error("insertion failed");
+    }
+    if(insertion.second) {
         balance_insertion(insertion.first);
         ++size_;
-        return iterator(insertion.first);
     }
+    return std::pair<iterator,bool>(iterator(insertion.first),insertion.second);
 }
 
 template<class T, class Cmp, class Alloc>
@@ -249,7 +248,7 @@ inline rb_node<T,Cmp,Alloc>* rb_tree<T,Cmp,Alloc>::unbalanced_delete(rb_node<T,C
         if(to_replace_arg != nullptr)
             to_replace_arg->parent = arg->parent;
     }
-    alloc_delete(arg->elem);
+    alloc_delete(const_cast<T*>(arg->elem));//underlying pointer not actually const
     delete arg;
     return to_replace_arg;
 }

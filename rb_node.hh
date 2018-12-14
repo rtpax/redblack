@@ -20,24 +20,26 @@ struct rb_node {
     const T* elem;
     rb_node *left, *right, *parent;
 
-    rb_node(T* t, color_type c, rb_node* p) : color(c), elem(t), parent(p) {}
-    rb_node() {}
+    rb_node(T* t, color_type c, rb_node* p) : color(c), elem(t), left(nullptr), right(nullptr), parent(p) {}
+    rb_node() : color(red), elem(nullptr), left(nullptr), right(nullptr), parent(nullptr) {}
 
-    bool is_root() { return parent == nullptr; }
-    bool is_leaf() { return left == nullptr || right == nullptr; }
+    bool is_root() const { return parent == nullptr; }
 
-    bool is_right() { return parent->right == this; }
-    bool is_left() { return parent->left == this; }
+    bool is_right() const { return parent->right == this; }
+    bool is_left() const { return parent->left == this; }
 
-    bool has_right() { return right != nullptr; }
-    bool has_left() { return left != nullptr; }
+    bool has_right() const { return right != nullptr; }
+    bool has_left() const { return left != nullptr; }
 
-    bool has_elem() { return elem != nullptr; }
+    bool is_red() const { return color == red; }
+    bool is_black() const { return color == black; }
 
-    bool is_end() { 
+    bool has_elem() const { return elem != nullptr; }
+
+    bool is_end() const { 
         return !has_elem() && (is_root() ? has_left() : is_right()); 
     }
-    bool is_rend() { 
+    bool is_rend() const { 
         return !has_elem() && (is_root() ? has_right() : is_left()); 
     }
 
@@ -46,8 +48,8 @@ struct rb_node {
     rb_node* sequential_next();
     rb_node* sequential_prev();
     
-    void dump_tree(int depth = 0);
-    void dump_node();
+    void dump_tree(int depth = 0) const;
+    void dump_node() const;
 };
 
 #include "rb_node.tcc"

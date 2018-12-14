@@ -36,7 +36,7 @@ LD_LIBS :=
 
 SHARED_SRCS :=
 
-T_SRCS := test.cc $(SHARED_SRCS)
+T_SRCS := test.cc test/custom_allocator.cc $(SHARED_SRCS)
 T_OBJS := $(T_SRCS:%.cc=$(BUILD_DIR)/%.o)
 T_DEPS := $(T_SRCS:%.cc=$(BUILD_DIR)/%.d)
 

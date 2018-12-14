@@ -51,7 +51,7 @@ rb_node<T,Cmp,Alloc>* rb_node<T,Cmp,Alloc>::sequential_prev() {
 }
 
 template <class T, class Cmp, class Alloc>
-void rb_node<T,Cmp,Alloc>::dump_tree(int depth) {
+void rb_node<T,Cmp,Alloc>::dump_tree(int depth) const {
     if(is_root()) {
         std::cout << "--";
     } else if(is_left()) {
@@ -74,7 +74,7 @@ void rb_node<T,Cmp,Alloc>::dump_tree(int depth) {
 }
 
 template <class T, class Cmp, class Alloc>
-void rb_node<T,Cmp,Alloc>::dump_node() {
+void rb_node<T,Cmp,Alloc>::dump_node() const {
     std::cout << this << ":\n";
     std::cout << "node-type: " << (is_end() ? "end" : is_rend() ? "rend" : "elem") << "\n";
     std::cout << "child-type: " << (is_root() ? "root" : is_left() ? "left" : is_right() ? "right" : "error") << "\n";

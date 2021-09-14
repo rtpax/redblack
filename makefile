@@ -1,13 +1,13 @@
 CXX := g++
 
 RELEASE_DIR := release
-RELEASE_CXX_FLAGS := -std=c++17 -O2 -g -Wall -Wno-sign-compare
+RELEASE_CXX_FLAGS := -std=c++17 -O2 -g -Wall -Wno-sign-compare -I.
 RELEASE_CPP_FLAGS := -DNDEBUG
 DEBUG_DIR := debug
-DEBUG_CXX_FLAGS := -std=c++17 -O0 -fno-inline -g3 -Wall -Wno-sign-compare
+DEBUG_CXX_FLAGS := -std=c++17 -O0 -fno-inline -g3 -Wall -Wno-sign-compare -I.
 DEBUG_CPP_FLAGS := -DDEBUG
 PROFILE_DIR := profile
-PROFILE_CXX_FLAGS := -std=c++17 -O2 -pg -Wall -Wno-sign-compare
+PROFILE_CXX_FLAGS := -std=c++17 -O2 -pg -Wall -Wno-sign-compare -I.
 PROFILE_CPP_FLAGS := -DNDEBUG
 
 BUILD_DIR := $(RELEASE_DIR)
@@ -36,7 +36,7 @@ LD_LIBS :=
 
 SHARED_SRCS :=
 
-T_SRCS := test.cc test/custom_allocator.cc $(SHARED_SRCS)
+T_SRCS := test/test.cc test/custom_allocator.cc $(SHARED_SRCS)
 T_OBJS := $(T_SRCS:%.cc=$(BUILD_DIR)/%.o)
 T_DEPS := $(T_SRCS:%.cc=$(BUILD_DIR)/%.d)
 
@@ -46,9 +46,9 @@ DEPS := $(SRCS:%.cc=$(BUILD_DIR)/%.d)
 
 .PHONY: clean clean-objs all main test install
 
-main: $(BUILD_DIR) $(BUILD_DIR)/main
+main: $(BUILD_DIR) $(BUILD_DIR)/test $(BUILD_DIR)/rb_tree
 
-test: $(BUILD_DIR) $(BUILD_DIR)/test
+test: $(BUILD_DIR) $(BUILD_DIR)/runtest
 
 all: main test
 
@@ -60,11 +60,14 @@ $(INSTALL_DIR)/main: $(BUILD_DIR) $(BUILD_DIR)/dif
 $(BUILD_DIR):
 	mkdir $(BUILD_DIR)
 
-$(BUILD_DIR)/main: $(OBJS)
-	$(CXX) $(OBJS) $(CXXFLAGS) $(LD_LIBS) -o $(BUILD_DIR)/main
+$(BUILD_DIR)/test: $(BUILD_DIR)
+	mkdir $(BUILD_DIR)/test
 
-$(BUILD_DIR)/test: $(T_OBJS)
-	$(CXX) $(T_OBJS) $(CXXFLAGS) $(LD_LIBS) -o $(BUILD_DIR)/test
+$(BUILD_DIR)/rb_tree: $(OBJS)
+	$(CXX) $(OBJS) $(CXXFLAGS) $(LD_LIBS) -o $(BUILD_DIR)/rb_tree
+
+$(BUILD_DIR)/runtest: $(T_OBJS)
+	$(CXX) $(T_OBJS) $(CXXFLAGS) $(LD_LIBS) -o $(BUILD_DIR)/runtest
 
 $(BUILD_DIR)/%.o: %.cc
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
